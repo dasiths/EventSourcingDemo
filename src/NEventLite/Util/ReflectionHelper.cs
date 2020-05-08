@@ -26,10 +26,14 @@ namespace NEventLite.Util
 
                 var voidMethods = aggregateType.GetMethodsBySig(typeof(void), typeof(InternalEventHandler),
                     true, eventType).ToList();
+                var voidMethodsWithReplay = aggregateType.GetMethodsBySig(typeof(void), typeof(InternalEventHandler),
+                    true, eventType, typeof(ReplayStatus)).ToList();
                 var asyncMethods = aggregateType.GetMethodsBySig(typeof(Task), typeof(InternalEventHandler),
                     true, eventType).ToList();
+                var asyncMethodsWithReplay = aggregateType.GetMethodsBySig(typeof(Task), typeof(InternalEventHandler),
+                    true, eventType, typeof(ReplayStatus)).ToList();
 
-                var methods = voidMethods.Union(asyncMethods).ToList();
+                var methods = voidMethods.Union(asyncMethods).Union(voidMethodsWithReplay).Union(asyncMethodsWithReplay).ToList();
 
                 if (methods.Any())
                 {

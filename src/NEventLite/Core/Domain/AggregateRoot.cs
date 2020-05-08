@@ -110,7 +110,7 @@ namespace NEventLite.Core.Domain
             {
                 if (CanApply(@event))
                 {
-                    await DoApplyAsync(@event);
+                    await DoApplyAsync(@event, isNew);
 
                     if (isNew)
                     {
@@ -140,7 +140,7 @@ namespace NEventLite.Core.Domain
                     && (CurrentVersion == @event.TargetVersion));
         }
 
-        private async Task DoApplyAsync(IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey> @event)
+        private async Task DoApplyAsync(IEvent<AggregateRoot<TAggregateKey, TEventKey>, TAggregateKey, TEventKey> @event, bool isNew)
         {
             if (StreamState == StreamState.NoStream)
             {
@@ -149,7 +149,8 @@ namespace NEventLite.Core.Domain
 
             if (_eventHandlerCache.ContainsKey(@event.GetType()))
             {
-                await @event.InvokeOnAggregateAsync(this, _eventHandlerCache[@event.GetType()]);
+                var replayStatus = isNew ? ReplayStatus.Regular : ReplayStatus.Replay;
+                await @event.InvokeOnAggregateAsync(this, _eventHandlerCache[@event.GetType()], replayStatus);
             }
             else
             {
